@@ -1,6 +1,7 @@
 #ifndef __FLC__
 #define __FLC__
 #include <stdarg.h>
+#include "FL/platform_types.h"
 #include "Fl_ExportMacros.h"
 #include "Fl_Types.h"
 #include "../config.h"
@@ -41,17 +42,6 @@ EXPORT {
     OPTION_SHOW_TOOLTIPS,
     OPTION_LAST
   } Fl_Option;
-#ifndef INTERNAL_LINKAGE
-#if defined(WIN32) && !defined(__CYGWIN__)
-# if defined(_WIN64)
-#  define FL_SOCKET unsigned __int64
-# else
-#  define FL_SOCKET int
-# endif
-#else
-# define FL_SOCKET int
-#endif
-#endif
 #if !defined(__APPLE__) && HAVE_GL
   FL_EXPORT_C_HEADER(int,Fl_gl_visual,(int mode));
   FL_EXPORT_C_HEADER(int,Fl_gl_visual_with_alist,(int mode, int *alist));

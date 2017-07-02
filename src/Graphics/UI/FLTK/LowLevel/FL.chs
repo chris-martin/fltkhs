@@ -934,14 +934,14 @@ setUseHighResGL use' = {#call Fl_set_use_high_res_GL as fl_set_use_high_res_GL #
 #if FLTK_API_VERSION >= 10400
 insertionPointLocation :: Position -> Height -> IO ()
 insertionPointLocation (Position (X x') (Y y')) (Height h')
-  = {#call  Fl_insertion_point_location #} (fromIntegral x') (fromIntegral y') (fromIntegral h')
+  = {#call Fl_insertion_point_location as fl_insertion_point_location #} (fromIntegral x') (fromIntegral y') (fromIntegral h')
 resetMarkedText :: IO ()
-resetMarkedText = {#call Fl_reset_marked_text #}
+resetMarkedText = {#call Fl_reset_marked_text as fl_reset_marked_text #}
 runChecks :: IO ()
-runChecks = {#call Fl_run_checks #}
+runChecks = {#call Fl_run_checks as fl_run_checks #}
 screenDriver :: IO (Maybe (Ref ScreenDriver))
-screenDriver = {#call Fl_screen_driver #} >>= toMaybeRef
+screenDriver = {#call Fl_screen_driver as fl_screen_driver #} >>= toMaybeRef
 systemDriver :: IO (Maybe (Ref SystemDriver))
-systemDriver = {#call Fl_system_driver #} >>= toMaybeRef
+systemDriver = {#call Fl_system_driver as fl_system_driver #} >>= toMaybeRef
 #endif
 #endif

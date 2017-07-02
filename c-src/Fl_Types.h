@@ -2,16 +2,7 @@
 #define __FL_TYPES_H
 #include "FL/fl_types.h"
 #include "Fl_EnumerationsC.h"
-
-#if defined(WIN32) && !defined(__CYGWIN__)
-# if defined(_WIN64)
-#  define FL_SOCKET unsigned __int64
-# else
-#  define FL_SOCKET int
-# endif
-#else
-# define FL_SOCKET int
-#endif
+#include "FL/platform_types.h"
 #ifdef _WIN64
 #ifdef __GNUC__
 #include <stdint.h>

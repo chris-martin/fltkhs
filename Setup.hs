@@ -127,7 +127,6 @@ myPostConf args flags pd lbi = do
                   then (flags{ configConfigureArgs = (configConfigureArgs flags) ++ ["--enable-gl"]})
                   else flags
   (major, minor, patch) <- getFltkVersion
-  print (show (major, minor, patch))
   let confFlagsWithVersion =
         confFlags
         {
