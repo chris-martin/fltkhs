@@ -7,6 +7,9 @@
 module Graphics.UI.FLTK.LowLevel.Fl_Types where
 #include "Fl_Types.h"
 #include "Fl_Text_EditorC.h"
+#if FL_API_VERSION >= 10400
+#include "FL/platform_types.h"
+#endif
 import Foreign
 import Foreign.C hiding (CClock)
 import Graphics.UI.FLTK.LowLevel.Fl_Enumerations
@@ -258,6 +261,9 @@ type Delta      = Maybe Int
 type FlIntPtr   = {#type fl_intptr_t #}
 type FlUIntPtr  = {#type fl_uintptr_t#}
 type ID         = {#type ID#}
+#if FL_API_VERSION >= 10400
+type FlOffscreen = {#type Fl_Offscreen #}
+#endif
 data Ref a      = Ref !(ForeignPtr (Ptr ())) deriving (Eq, Show)
 data FunRef     = FunRef !(FunPtr ())
 -- * The FLTK widget hierarchy
@@ -339,6 +345,11 @@ data ScreenLocation = Intersect Rectangle
                     | ScreenPosition Position deriving Show
 newtype FontSize = FontSize CInt deriving Show
 newtype PixmapHs = PixmapHs [T.Text] deriving Show
+#if FL_API_VERSION >= 10400
+-- | The type of 'FlOffscreen' varies wildly from platform to platform. Feel free to examine the insides when debugging
+-- but any computation based on it will probably not be portable.
+newtype Offscreen = Offscreen FlOffscreen
+#endif
 data BitmapHs = BitmapHs B.ByteString Size deriving Show
 data Clipboard = InternalClipboard | SharedClipboard deriving Show
 data UnknownEvent = UnknownEvent deriving Show

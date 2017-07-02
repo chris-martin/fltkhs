@@ -1,11 +1,13 @@
 #ifndef __FLC__
 #define __FLC__
 #include <stdarg.h>
-#include "FL/platform_types.h"
 #include "Fl_ExportMacros.h"
 #include "Fl_Types.h"
 #include "../config.h"
 #include "Fl_EnumerationsC.h"
+#if FL_API_VERSION >= 10400
+#include "FL/platform_types.h"
+#endif
 #ifdef __cplusplus
 #include "FL/Fl.H"
 #include "Fl_EnumerationsC.h"

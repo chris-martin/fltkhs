@@ -114,7 +114,13 @@ module Graphics.UI.FLTK.LowLevel.Draw
        flcSetSpotWithWin,
        flcSetSpot,
        flcResetSpot,
-       flcDrawSymbol
+       flcDrawSymbol,
+#if FLTK_API_VERSION >= 10400
+       flcCreateOffscreen
+     , flcBeginOffscreen
+     , flcEndOffscreen
+     , flcDeleteOffscreen
+#endif
     )
 where
 #include "Fl_C.h"
@@ -665,3 +671,21 @@ flcResetSpot  = flcResetSpot'
 {# fun flc_draw_symbol as flcDrawSymbol' { unsafeToCString `T.Text',`Int',`Int',`Int',`Int',cFromColor `Color' } -> `Int' #}
 flcDrawSymbol :: T.Text -> Rectangle -> Color ->  IO (Int)
 flcDrawSymbol label rectangle color' = let (x_pos', y_pos', width', height') = fromRectangle rectangle in flcDrawSymbol' label x_pos' y_pos' width' height' color'
+
+#if FLTK_API_VERSION >= 10400
+-- | Only available on FLTK version 1.4.0 and above.
+flcCreateOffscreen :: Size -> IO Offscreen
+flcCreateOffscreen (Size (Width w') (Height h')) =
+  {#call flc_create_offscreen as flcCreateOffscreen' #} (fromIntegral w') (fromIntegral h') >>= return . Offscreen
+{#fun flc_begin_offscreen as flcBeginOffscreen' {id `FlOffscreen'} -> `()' #}
+-- | Only available on FLTK version 1.4.0 and above.
+flcBeginOffscreen :: Offscreen -> IO ()
+flcBeginOffscreen (Offscreen o) = flcBeginOffscreen' o
+-- | Only available on FLTK version 1.4.0 and above.
+flcEndOffscreen :: IO ()
+flcEndOffscreen =  {# call flc_end_offscreen as flcEndOffscreen' #}
+-- | Only available on FLTK version 1.4.0 and above.
+{#fun flc_delete_offscreen as flcDeleteOffscreen' {id `FlOffscreen'} -> `()' #}
+flcDeleteOffscreen :: Offscreen -> IO ()
+flcDeleteOffscreen (Offscreen o) = flcDeleteOffscreen' o
+#endif

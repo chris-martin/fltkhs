@@ -571,6 +571,16 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          setCurrent,
          -- * ImageSurface
          ImageSurface,
+         GetOrigin,
+         getOrigin,
+         PrintableRect,
+         printableRect,
+         SetOrigin,
+         setOrigin,
+         GetOffscreenBeforeDelete,
+         getOffscreenBeforeDelete,
+         GetOffscreen,
+         getOffscreen,
          -- * Adjuster
          Adjuster,
          SetSoft,
@@ -1558,7 +1568,6 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          getErrorColor,
          SetErrorColor,
          setErrorColor,
-         OffScreen,
          ScreenDriver,
          SystemDriver
      )
@@ -2545,10 +2554,25 @@ type ImageSurfaceFuncs =
   (Destroy
   (SetCurrent
   (Draw
+#if FLTK_API_VERSION >= 10400
+  (GetOrigin
+  (PrintableRect
+  (SetOrigin
+  (GetOffscreenBeforeDelete
+  (GetOffscreen
+#endif
   ())))
+#if FLTK_API_VERSION >= 10400
+  )))))
+#endif
 
 type instance Functions ImageSurface = ImageSurfaceFuncs
 
+MAKE_METHOD(GetOrigin, getOrigin)
+MAKE_METHOD(PrintableRect, printableRect)
+MAKE_METHOD(SetOrigin, setOrigin)
+MAKE_METHOD(GetOffscreenBeforeDelete, getOffscreenBeforeDelete)
+MAKE_METHOD(GetOffscreen, getOffscreen)
 
 data CAdjuster parent
 type Adjuster = CAdjuster Valuator
@@ -4352,8 +4376,6 @@ type FileInputFuncs =
 type instance Functions FileInput = FileInputFuncs
 MAKE_METHOD(SetErrorColor, setErrorColor)
 MAKE_METHOD(GetErrorColor, getErrorColor)
-
-data OffScreen
 
 data CScreenDriver parent
 type ScreenDriver = CScreenDriver Base

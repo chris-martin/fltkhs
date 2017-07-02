@@ -420,6 +420,20 @@ EXPORT {
   FL_EXPORT_C(int,flc_add_symbol)(const char* name, void (*drawit)(Fl_Color), int scalable){
     return fl_add_symbol(name, drawit, scalable);
   }
+#if FL_API_VERSION >= 10400
+  FL_EXPORT_C(Fl_Offscreen ,flc_create_offscreen)(int w, int h){
+    return fl_create_offscreen(w,h);
+  }
+  FL_EXPORT_C(void ,flc_begin_offscreen)(Fl_Offscreen ctx){
+    fl_begin_offscreen(ctx);
+  }
+  FL_EXPORT_C(void ,flc_end_offscreen)(){
+    fl_end_offscreen();
+  }
+  FL_EXPORT_C(void ,flc_delete_offscreen)(Fl_Offscreen ctx){
+    fl_delete_offscreen(ctx);
+  }
+#endif
 #ifdef __cplusplus
 }
 #endif
