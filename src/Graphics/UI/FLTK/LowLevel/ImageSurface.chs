@@ -32,10 +32,6 @@ imageSurfaceNew (Size (Width w') (Height h')) = imageSurfaceNew' w' h' >>= toRef
 instance (impl ~ (IO ())) => Op (Destroy ()) ImageSurface orig impl where
   runOp _ _ image_surface = withRef image_surface $ \image_surfacePtr -> imageSurfaceDestroy' image_surfacePtr
 
-{# fun Fl_Image_Surface_class_name as className' { id `Ptr ()' } -> `T.Text' unsafeFromCString #}
-instance (impl ~ ( IO (T.Text))) => Op (ClassName ()) ImageSurface orig impl where
-  runOp _ _ image_surface = withRef image_surface $ \image_surfacePtr -> className' image_surfacePtr
-
 {# fun Fl_Image_Surface_set_current as setCurrent' { id `Ptr ()' } -> `()' #}
 instance (impl ~ ( IO ())) => Op (SetCurrent ()) ImageSurface orig impl where
   runOp _ _ image_surface = withRef image_surface $ \image_surfacePtr -> setCurrent' image_surfacePtr

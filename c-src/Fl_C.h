@@ -3,8 +3,8 @@
 #include <stdarg.h>
 #include "Fl_ExportMacros.h"
 #include "Fl_Types.h"
-#include "Fl_EnumerationsC.h"
 #include "../config.h"
+#include "Fl_EnumerationsC.h"
 #ifdef __cplusplus
 #include "FL/Fl.H"
 #include "Fl_EnumerationsC.h"
@@ -274,6 +274,13 @@ EXPORT {
   FL_EXPORT_C_HEADER(const char*       ,Fl_local_shift,());
   FL_EXPORT_C_HEADER(void              ,Fl_set_use_high_res_GL,(int val));
   FL_EXPORT_C_HEADER(int               ,Fl_use_high_res_GL,());
+#endif
+#if FL_API_VERSION >= 10400
+  FL_EXPORT_C_HEADER(void, Fl_insertion_point_location, ( int x, int y, int height ));
+  FL_EXPORT_C_HEADER(void, Fl_reset_marked_text,());
+  FL_EXPORT_C_HEADER(void, Fl_run_checks,());
+  FL_EXPORT_C_HEADER(void*, Fl_screen_driver,());
+  FL_EXPORT_C_HEADER(void*, Fl_system_driver,());
 #endif
 #ifdef __cplusplus
 }

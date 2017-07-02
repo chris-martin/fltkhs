@@ -567,8 +567,6 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          Pixmap,
          -- * CopySurface
          CopySurface,
-         ClassName,
-         className,
          SetCurrent,
          setCurrent,
          -- * ImageSurface
@@ -1559,7 +1557,10 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          GetErrorColor,
          getErrorColor,
          SetErrorColor,
-         setErrorColor
+         setErrorColor,
+         OffScreen,
+         ScreenDriver,
+         SystemDriver
      )
 where
 import Prelude hiding (round, fail)
@@ -2530,24 +2531,21 @@ data CCopySurface parent
 type CopySurface = CCopySurface Base
 type CopySurfaceFuncs =
   (Destroy
-  (ClassName
   (SetCurrent
   (Draw
-  ()))))
+  ())))
 
 type instance Functions CopySurface = CopySurfaceFuncs
 
-MAKE_METHOD(ClassName,className)
 MAKE_METHOD(SetCurrent,setCurrent)
 
 data CImageSurface parent
 type ImageSurface = CImageSurface Base
 type ImageSurfaceFuncs =
   (Destroy
-  (ClassName
   (SetCurrent
   (Draw
-  ()))))
+  ())))
 
 type instance Functions ImageSurface = ImageSurfaceFuncs
 
@@ -4354,3 +4352,13 @@ type FileInputFuncs =
 type instance Functions FileInput = FileInputFuncs
 MAKE_METHOD(SetErrorColor, setErrorColor)
 MAKE_METHOD(GetErrorColor, getErrorColor)
+
+data OffScreen
+
+data CScreenDriver parent
+type ScreenDriver = CScreenDriver Base
+type instance Functions ScreenDriver = ()
+
+data CSystemDriver parent
+type SystemDriver = CSystemDriver Base
+type instance Functions SystemDriver = ()

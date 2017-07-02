@@ -48,7 +48,7 @@ main = defaultMainWithHooks autoconfUserHooks {
   regHook = registerHook
   }
 
-fltkSource = "fltk-1.3.4-1"
+fltkSource = "fltk-1.4.x-r12283"
 
 runMake :: [String] -> IO ()
 runMake args =
@@ -60,7 +60,9 @@ runMake args =
 
 buildFltk :: IO FilePath -> Bool -> IO ()
 buildFltk prefix openGL = do
-  rawSystemExit normal "tar" ["-zxf", fltkSource ++ "-source.tar.gz"]
+  rawSystemExit normal "bunzip2" ["-k", fltkSource ++ ".tar.bz2"]
+  rawSystemExit normal "tar" ["-xf", fltkSource ++ ".tar"]
+  rawSystemExit normal "rm" ["-f", fltkSource ++ ".tar"]
   projectRoot <- getCurrentDirectory
   prefix' <- prefix
   let fltkDir = projectRoot </>  fltkSource
@@ -79,31 +81,45 @@ buildFltk prefix openGL = do
       in
       case buildOS of
         Windows -> do
+          rawSystemExit normal "sh" ([(fltkDir </> "autogen.sh")] ++ fltkFlags)
           rawSystemExit normal "sh" ([(fltkDir </> "configure")] ++ fltkFlags)
           make
-          updateEnv "PATH" (windowsFriendlyPaths (prefix' </> "bin"))
         _ -> do
+          rawSystemExit normal (fltkDir </> "autogen.sh") fltkFlags
           rawSystemExit normal (fltkDir </> "configure") fltkFlags
           make
-          updateEnv "PATH" (prefix' </> "bin")
     )
 
 myPreConf :: Args -> ConfigFlags -> IO HookedBuildInfo
 myPreConf args flags = do
    if (bundledBuild flags)
-   then do
-     putStrLn "Building bundled FLTK"
-     prefix <- bundlePrefix flags ""
-     fltkBuilt <- doesDirectoryExist prefix
-     if (not fltkBuilt)
-     then buildFltk (case buildOS of { Windows -> cygpath "-u" prefix; _ -> return prefix;}) (openGLSupport flags)
-     else putStrLn "FLTK already built."
-   else return ()
+    then do
+      putStrLn "Building bundled FLTK"
+      prefix <- bundlePrefix flags ""
+      fltkBuilt <- doesDirectoryExist prefix
+      if (not fltkBuilt)
+        then do
+          buildFltk (case buildOS of { Windows -> cygpath "-u" prefix; _ -> return prefix;}) (openGLSupport flags)
+          case buildOS of
+            Windows -> updateEnv "PATH" (windowsFriendlyPaths (prefix </> "bin"))
+            _ -> updateEnv "PATH" (prefix </> "bin")
+        else putStrLn "FLTK already built."
+      else return ()
    putStrLn "Running autoconf ..."
    case buildOS of
-     Windows -> rawSystemExit normal "sh" ["autoconf"]
-     _ -> rawSystemExit normal "autoconf" []
-   preConf autoconfUserHooks args flags
+     Windows -> do
+        rawSystemExit normal "sh" ["autoheader"]
+        rawSystemExit normal "sh" ["autoconf"]
+     _ -> do
+       rawSystemExit normal "autoheader" []
+       rawSystemExit normal "autoconf" []
+   fltkPathAdded <-
+     if (bundledBuild flags)
+     then do
+       prefix <- bundlePrefix flags ""
+       return flags{ configProgramPaths = [("fltk-config", prefix </> "bin" </> "fltk-config")] ++ (configProgramPaths flags)}
+     else return flags
+   preConf autoconfUserHooks args fltkPathAdded
 
 myPostConf :: Args -> ConfigFlags -> PackageDescription -> LocalBuildInfo -> IO ()
 myPostConf args flags pd lbi = do
@@ -111,7 +127,7 @@ myPostConf args flags pd lbi = do
                   then (flags{ configConfigureArgs = (configConfigureArgs flags) ++ ["--enable-gl"]})
                   else flags
   (major, minor, patch) <- getFltkVersion
-  apiVersion <- getApiVersion
+  print (show (major, minor, patch))
   let confFlagsWithVersion =
         confFlags
         {
@@ -121,7 +137,7 @@ myPostConf args flags pd lbi = do
                    ("--with-fltk-patch-version=" ++ patch)
                  ]
         }
-  postConf autoconfUserHooks args confFlagsWithVersion (addApiVersion pd apiVersion) lbi
+  postConf autoconfUserHooks args confFlagsWithVersion pd lbi
 
 fltkcdir :: FilePath
 fltkcdir = unsafePerformIO $ do
@@ -212,11 +228,14 @@ addApiVersion pkg_descr apiVersion =
         do
           l <- library pkg_descr
           let cpp = cppOptions (libBuildInfo l)
-              apiVersionAdded = cpp ++ ["-DFLTK_API_VERSION=" ++ (show apiVersion)]
+              -- have to add to ccOptions as well otherwise c2hs won't see it.
+              cc = ccOptions (libBuildInfo l)
+              fltkApiFlag = "-DFLTK_API_VERSION=" ++ (show apiVersion)
           return (l {
                       libBuildInfo =
                         (libBuildInfo l) {
-                           cppOptions = apiVersionAdded
+                           cppOptions = cpp ++ [fltkApiFlag],
+                           ccOptions = cc ++ [fltkApiFlag]
                         }
                    })
   in

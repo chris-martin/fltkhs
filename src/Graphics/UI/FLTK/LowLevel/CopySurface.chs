@@ -30,10 +30,6 @@ copySurfaceNew (Size (Width w') (Height h')) = copySurfaceNew' w' h' >>= toRef
 instance (impl ~ (IO ())) => Op (Destroy ()) CopySurface orig impl where
   runOp _ _ copy_surface = withRef copy_surface $ \copy_surfacePtr -> copySurfaceDestroy' copy_surfacePtr
 
-{# fun Fl_Copy_Surface_class_name as className' { id `Ptr () ' } -> `T.Text' unsafeFromCString #}
-instance (impl ~ (IO (T.Text))) => Op (ClassName ()) Image orig impl where
-  runOp _ _ copy_surface = withRef copy_surface $ \copy_surfacePtr -> className' copy_surfacePtr
-
 {# fun Fl_Copy_Surface_set_current as setCurrent' { id `Ptr ()' } -> `()' #}
 instance (impl ~ ( IO ())) => Op (SetCurrent ()) CopySurface orig impl where
   runOp _ _ copy_surface = withRef copy_surface $ \copy_surfacePtr -> setCurrent' copy_surfacePtr

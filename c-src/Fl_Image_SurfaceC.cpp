@@ -2,9 +2,6 @@
 #ifdef __cplusplus
 EXPORT {
 #endif
-  FL_EXPORT_C(const char*,Fl_Image_Surface_class_name)(fl_Image_Surface image_surface){
-    return (static_cast<Fl_Image_Surface*>(image_surface))->class_name();
-  }
   FL_EXPORT_C(void,Fl_Image_Surface_set_current)(fl_Image_Surface image_surface){
     (static_cast<Fl_Image_Surface*>(image_surface))->set_current();
   }

@@ -5,6 +5,7 @@
 // Fl_Widget is included transitively and needed for
 // the callback mechanism included below to work.
 #include "FL/Fl.H"
+#include "FL/Fl_Image.H"
 #include "FL/Fl_Tree_Prefs.H"
 #include "Fl_CallbackC.h"
 EXPORT {

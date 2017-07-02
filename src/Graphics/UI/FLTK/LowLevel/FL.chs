@@ -177,6 +177,14 @@ module Graphics.UI.FLTK.LowLevel.FL
      , setUseHighResGL
 #endif
 #endif
+#if FLTK_API_VERSION >= 10400
+     , insertionPointLocation
+     , resetMarkedText
+     , runChecks
+     , screenDriver
+     , systemDriver
+     , screenXYWH
+#endif
     )
 where
 #include "Fl_C.h"
@@ -622,7 +630,6 @@ paste widget PasteSourceClipboardImage =
          alloca- `Int' peekIntConv* ,
          alloca- `Int' peekIntConv*
        } -> `()'  #}
-
 {# fun Fl_screen_xywh_with_mxmy as screenXYWYWithMXMY
        {
          alloca- `Int' peekIntConv* ,
@@ -632,7 +639,6 @@ paste widget PasteSourceClipboardImage =
          `Int',
          `Int'
        } -> `()'  #}
-
 {# fun Fl_screen_xywh_with_n as screenXYWNWithN
        {
          alloca- `Int' peekIntConv* ,
@@ -641,7 +647,6 @@ paste widget PasteSourceClipboardImage =
          alloca- `Int' peekIntConv* ,
          `Int'
        } -> `()'  #}
-
 {# fun Fl_screen_xywh_with_mxmymwmh as screenXYWHWithNMXMYMWMH
        {
          alloca- `Int' peekIntConv* ,
@@ -925,5 +930,18 @@ useHighResGL = {#call Fl_use_high_res_GL as fl_use_high_res_GL #} >>= return . c
 -- | Only available on FLTK version 1.3.4 and above if GL is enabled with 'stack build --flag fltkhs:opengl'
 setUseHighResGL :: Bool -> IO ()
 setUseHighResGL use' = {#call Fl_set_use_high_res_GL as fl_set_use_high_res_GL #} (cFromBool use')
+#endif
+#if FLTK_API_VERSION >= 10400
+insertionPointLocation :: Position -> Height -> IO ()
+insertionPointLocation (Position (X x') (Y y')) (Height h')
+  = {#call  Fl_insertion_point_location #} (fromIntegral x') (fromIntegral y') (fromIntegral h')
+resetMarkedText :: IO ()
+resetMarkedText = {#call Fl_reset_marked_text #}
+runChecks :: IO ()
+runChecks = {#call Fl_run_checks #}
+screenDriver :: IO (Maybe (Ref ScreenDriver))
+screenDriver = {#call Fl_screen_driver #} >>= toMaybeRef
+systemDriver :: IO (Maybe (Ref SystemDriver))
+systemDriver = {#call Fl_system_driver #} >>= toMaybeRef
 #endif
 #endif
