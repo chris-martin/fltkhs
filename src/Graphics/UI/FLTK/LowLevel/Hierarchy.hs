@@ -1520,7 +1520,7 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          GetSpacing,
          isHorizontal,
          IsHorizontal,
-         -- Scrolled AKA Scroll
+         -- * Scrolled AKA Scroll
          Scrolled,
          ScrollTo,
          scrollTo,
@@ -1528,7 +1528,7 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          xposition,
          Yposition,
          yposition,
-         -- Tabs
+         -- * Tabs
          Tabs,
          GetPush,
          getPush,
@@ -1538,11 +1538,11 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          which,
          ClientArea,
          clientArea,
-         -- Spinner
+         -- * Spinner
          Spinner,
          GetFormat,
          getFormat,
-         -- ColorChooser
+         -- * ColorChooser
          ColorChooser,
          GetHue,
          getHue,
@@ -1558,7 +1558,7 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          setHsv,
          SetRgb,
          setRgb,
-         -- FileBrowser
+         -- * FileBrowser
          FileBrowser,
          SetIconsize,
          setIconsize,
@@ -1568,30 +1568,32 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          setFiletype,
          GetFiletype,
          getFiletype,
-         -- RGBImage
+         -- * RGBImage
          RGBImage,
-         -- JPEGImage
+         -- * JPEGImage
          JPEGImage,
-         -- BMPImage
+         -- * BMPImage
          BMPImage,
-         -- GIFImage
+         -- * GIFImage
          GIFImage,
-         -- XBMImage
+         -- * XBMImage
          XBMImage,
-         -- XPMImage
+         -- * XPMImage
          XPMImage,
-         -- PNGImage
+         -- * PNGImage
          PNGImage,
-         -- PNMImage
+         -- * PNMImage
          PNMImage,
-         -- FileInput
+         -- * FileInput
          FileInput,
          GetErrorColor,
          getErrorColor,
          SetErrorColor,
          setErrorColor,
          ScreenDriver,
-         SystemDriver
+         SystemDriver,
+         -- * SVGImage
+         SVGImage
      )
 where
 import Prelude hiding (round, fail)
@@ -4432,3 +4434,15 @@ type instance Functions ScreenDriver = ()
 data CSystemDriver parent
 type SystemDriver = CSystemDriver Base
 type instance Functions SystemDriver = ()
+
+data CSVGImage parent
+type SVGImage = CSVGImage RGBImage
+type SVGImageFuncs =
+  (Destroy
+  (Copy
+  (ColorAverage
+  (Desaturate
+  (DrawResize
+  (Draw
+  ()))))))
+type instance Functions SVGImage = SVGImageFuncs

@@ -77,6 +77,7 @@ CPPFILES= $(GL_FILES) \
 	Fl_XPM_ImageC.cpp \
 	Fl_GIF_ImageC.cpp \
 	Fl_BMP_ImageC.cpp \
+	Fl_SVG_ImageC.cpp \
 	Fl_PreferencesC.cpp \
 	Fl_PrinterC.cpp \
 	Fl_ProgressC.cpp \

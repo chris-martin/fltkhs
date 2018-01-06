@@ -425,6 +425,7 @@ EXPORT {
   typedef void* fl_Pixmap;
   typedef void* fl_Plugin;
   typedef void* fl_PNG_Image;
+  typedef void* fl_SVG_Image;
   typedef void* fl_PNM_Image;
   typedef void* fl_Positioner;
   typedef void* fl_PostScript;
