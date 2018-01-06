@@ -252,20 +252,21 @@ data WrapType = WrapNone | WrapAtColumn ColumnNumber | WrapAtPixel PixelPosition
 data StyleTableEntry = StyleTableEntry (Maybe Color) (Maybe Font) (Maybe FontSize) deriving Show
 
 {#enum PackType{} deriving (Show, Eq, Ord) #}
-type FlShortcut = {#type Fl_Shortcut #}
-type FlColor    = {#type Fl_Color #}
-type FlFont     = {#type Fl_Font #}
-type FlAlign    = {#type Fl_Align #}
-type LineDelta  = Maybe Int
-type Delta      = Maybe Int
-type FlIntPtr   = {#type fl_intptr_t #}
-type FlUIntPtr  = {#type fl_uintptr_t#}
-type ID         = {#type ID#}
+type FlShortcut      = {#type Fl_Shortcut #}
+type FlColor         = {#type Fl_Color #}
+type FlFont          = {#type Fl_Font #}
+type FlAlign         = {#type Fl_Align #}
+type LineDelta       = Maybe Int
+type Delta           = Maybe Int
+type FlIntPtr        = {#type fl_intptr_t #}
+type FlUIntPtr       = {#type fl_uintptr_t#}
+type ID              = {#type ID#}
 #if FL_API_VERSION >= 10400
 type FlOffscreen = {#type Fl_Offscreen #}
 #endif
-data Ref a      = Ref !(ForeignPtr (Ptr ())) deriving (Eq, Show)
-data FunRef     = FunRef !(FunPtr ())
+newtype WindowHandle = WindowHandle (Ptr ())
+data Ref a           = Ref !(ForeignPtr (Ptr ())) deriving (Eq, Show)
+data FunRef          = FunRef !(FunPtr ())
 -- * The FLTK widget hierarchy
 data CBase parent
 type Base = CBase ()
@@ -352,6 +353,12 @@ newtype Offscreen = Offscreen FlOffscreen
 #endif
 data BitmapHs = BitmapHs B.ByteString Size deriving Show
 data Clipboard = InternalClipboard | SharedClipboard deriving Show
+data OutOfRangeOrNotSubmenu = OutOfRangeOrNotSubmenu deriving Show
+successOrOutOfRangeOrNotSubmenu :: Int -> Either OutOfRangeOrNotSubmenu ()
+successOrOutOfRangeOrNotSubmenu status = if (status == (-1)) then Left OutOfRangeOrNotSubmenu else Right ()
+data AwakeRingFull = AwakeRingFull deriving Show
+successOrAwakeRingFull :: Int -> Either AwakeRingFull ()
+successOrAwakeRingFull status = if (status == (-1)) then Left AwakeRingFull else Right ()
 data UnknownEvent = UnknownEvent deriving Show
 successOrUnknownEvent :: Int -> Either UnknownEvent ()
 successOrUnknownEvent status = if (status == 0) then Left UnknownEvent else Right ()

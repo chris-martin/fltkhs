@@ -10,11 +10,12 @@ module Graphics.UI.FLTK.LowLevel.FL
      selectionOwner,
      setSelectionOwner,
      run,
+     replRun,
      check,
      ready,
      option,
      setOption,
-     addAwakeHandler,
+     addAwakeHandler_,
      getAwakeHandler_,
      display,
      ownColormap,
@@ -67,6 +68,7 @@ module Graphics.UI.FLTK.LowLevel.FL
 #endif
      wait,
      setWait,
+     waitFor,
      readqueue,
      addTimeout,
      repeatTimeout,
@@ -120,10 +122,9 @@ module Graphics.UI.FLTK.LowLevel.FL
      getFontName,
      getFont,
      getFontSizes,
-     setFontByString,
-     setFontByFont,
+     setFontToString,
+     setFontToFont,
      setFonts,
-     setFontsWithString,
      -- * File Descriptor Callbacks
      addFd,
      addFdWhen,
@@ -211,6 +212,7 @@ import Graphics.UI.FLTK.LowLevel.Dispatch
 import qualified Data.Text as T
 import qualified Data.Text.Foreign as TF
 import qualified System.IO.Unsafe as Unsafe (unsafePerformIO)
+import Control.Exception(catch, throw, AsyncException(UserInterrupt))
 #c
  enum Option {
    OptionArrowFocus = OPTION_ARROW_FOCUS,
@@ -268,11 +270,12 @@ unsafeToCallbackPrim = (Unsafe.unsafePerformIO) . toGlobalCallbackPrim
 
 {# fun Fl_add_awake_handler_ as addAwakeHandler'
   {id `FunPtr CallbackPrim', id `(Ptr ())'} -> `Int' #}
-addAwakeHandler :: GlobalCallback -> IO Int
-addAwakeHandler awakeHandler =
+addAwakeHandler_ :: GlobalCallback -> IO (Either AwakeRingFull ())
+addAwakeHandler_ awakeHandler =
     do
       callbackPtr <-  toGlobalCallbackPrim awakeHandler
-      addAwakeHandler' callbackPtr nullPtr
+      res <- addAwakeHandler' callbackPtr nullPtr
+      return (successOrAwakeRingFull res)
 
 {# fun Fl_get_awake_handler_ as getAwakeHandler_'
   {id `Ptr (FunPtr CallbackPrim)', id `Ptr (Ptr ())'} -> `Int' #}
@@ -332,9 +335,11 @@ isScheme :: T.Text -> IO Bool
 isScheme sch = TF.withCStringLen sch $ \(str,_) -> {#call Fl_is_scheme as fl_is_scheme #} str >>= return . toBool
 {# fun Fl_wait as wait
        {  } -> `Int' #}
-{# fun Fl_set_wait as setWait
+{# fun Fl_set_wait as waitFor
        { `Double' } -> `Double' #}
 
+setWait :: Double -> IO Double
+setWait = waitFor
 {# fun Fl_scrollbar_size as scrollbarSize
        {  } -> `Int' #}
 {# fun Fl_set_scrollbar_size as setScrollbarSize
@@ -514,14 +519,14 @@ eventInsideWidget wp =
        {} -> `()' supressWarningAboutRes #}
 {# fun Fl_handle as handle'
        { `Int',id `Ptr ()' } -> `Int' #}
-handle :: (Parent a Window) =>  Event -> Ref a -> IO Int
+handle :: (Parent a Window) =>  Event -> Ref a -> IO (Either UnknownEvent ())
 handle e wp =
-    withRef wp (handle' (cFromEnum e))
+    withRef wp (handle' (cFromEnum e)) >>= return . successOrUnknownEvent
 {# fun Fl_handle_ as handle_'
        { `Int',id `Ptr ()' } -> `Int' #}
-handle_ :: (Parent a Window) =>  Event -> Ref a -> IO Int
+handle_ :: (Parent a Window) =>  Event -> Ref a -> IO (Either UnknownEvent ())
 handle_ e wp =
-    withRef wp (handle_' (cFromEnum e))
+    withRef wp (handle_' (cFromEnum e)) >>= return . successOrUnknownEvent
 {# fun Fl_belowmouse as belowmouse
        {  } -> `Maybe (Ref Widget)' unsafeToMaybeRef #}
 {# fun Fl_set_belowmouse as setBelowmouse'
@@ -566,7 +571,8 @@ setHandler eh = do
        { id `Ptr (FunPtr EventDispatchPrim)' } -> `()' supressWarningAboutRes #}
 {# fun Fl_event_dispatch as eventDispatch'
        {  } -> `FunPtr EventDispatchPrim' id #}
-eventDispatch :: (Parent a Widget) => IO (Event -> Ref a -> IO (Int))
+eventDispatch :: (Parent a Widget) =>
+   IO (Event -> Ref a -> IO (Either UnknownEvent ()))
 eventDispatch =
     do
       funPtr <- eventDispatch'
@@ -577,11 +583,13 @@ eventDispatch =
                          let eventNum = fromIntegral (fromEnum e)
                              fun = unwrapEventDispatchPrim funPtr
                          in fun eventNum (castPtr ptr) >>=
-                            return . fromIntegral
+                            return . successOrUnknownEvent . fromIntegral
                     )
              )
 
-setEventDispatch :: (Parent a Widget) => (Event -> Ref a -> IO Int) -> IO ()
+setEventDispatch ::
+    (Parent a Widget) =>
+    (Event -> Ref a -> IO (Either UnknownEvent ())) -> IO ()
 setEventDispatch ed = do
     do
       let toPrim = (\e ptr ->
@@ -589,7 +597,9 @@ setEventDispatch ed = do
                       in do
                       obj <- toRef ptr
                       result <- ed eventEnum obj
-                      return $ fromIntegral result
+                      case result of
+                        Left _ -> return 0
+                        _ -> return 1
                     )
       callbackPtr <-  wrapEventDispatchPrim toPrim
       ptrToCallbackPtr <- new callbackPtr
@@ -770,16 +780,36 @@ toAttribute ptr =
           return $ cToFontAttribute attributeCode
 getFontName :: Font -> IO (T.Text, Maybe FontAttribute)
 getFontName f = getFontNameWithAttributes' f
-{# fun Fl_get_font_sizes as getFontSizes
-       { cFromFont `Font', alloca- `Int' peekIntConv* } -> `Int' #}
-{# fun Fl_set_font_by_string as setFontByString
+{# fun Fl_get_font_sizes as getFontSizes'
+       { cFromFont `Font', id `Ptr (Ptr CInt)' } -> `CInt' #}
+getFontSizes :: Font -> IO [FontSize]
+getFontSizes font = do
+   arrPtr <- (newArray [] :: IO (Ptr (Ptr CInt)))
+   arrLength <- getFontSizes' font arrPtr
+   zeroth <- peekElemOff arrPtr 0
+   if (arrLength == 0) then return []
+   else do
+     (sizes :: [CInt]) <-
+         mapM
+           (
+            \offset -> do
+               size <- peek (advancePtr zeroth offset)
+               return size
+           )
+           [0 .. ((fromIntegral arrLength) - 1)]
+     return (map FontSize sizes)
+
+{# fun Fl_set_font_by_string as setFontToString
        { cFromFont `Font', unsafeToCString `T.Text' } -> `()' supressWarningAboutRes #}
-{# fun Fl_set_font_by_font as setFontByFont
+{# fun Fl_set_font_by_font as setFontToFont
        { cFromFont `Font',cFromFont `Font' } -> `()' supressWarningAboutRes #}
-{# fun Fl_set_fonts as setFonts
-       {  } -> `Font' cToFont #}
-{# fun Fl_set_fonts_with_string as setFontsWithString
-       { unsafeToCString `T.Text' } -> `Font' cToFont #}
+{# fun Fl_set_fonts as setFonts'
+       {  } -> `Int' #}
+{# fun Fl_set_fonts_with_string as setFontsWithString'
+       { id `Ptr CChar' } -> `Int' #}
+setFonts :: Maybe T.Text -> IO Int
+setFonts (Just xstarName) = withText xstarName (\starNamePtr -> setFontsWithString' starNamePtr)
+setFonts Nothing = setFonts'
 
 {# fun Fl_add_fd_with_when as addFdWhen'
        {
@@ -874,10 +904,10 @@ setBoxtype bt (FromBoxtype template) =
       {  } -> `Bool' toBool #}
 release :: IO ()
 release = {#call Fl_release as fl_release #}
-setVisibleFocus :: Int -> IO ()
-setVisibleFocus = {#call Fl_set_visible_focus as fl_set_visible_focus #} . fromIntegral
-visibleFocus :: IO Int
-visibleFocus = {#call Fl_visible_focus as fl_visible_focus #} >>= return . fromIntegral
+setVisibleFocus :: Bool -> IO ()
+setVisibleFocus = {#call Fl_set_visible_focus as fl_set_visible_focus #} . cFromBool
+visibleFocus :: IO Bool
+visibleFocus = {#call Fl_visible_focus as fl_visible_focus #} >>= return . cToBool
 setDndTextOps :: Bool -> IO ()
 setDndTextOps =  {#call Fl_set_dnd_text_ops as fl_set_dnd_text_ops #} . fromBool
 dndTextOps :: IO Option
@@ -945,3 +975,23 @@ systemDriver :: IO (Maybe (Ref SystemDriver))
 systemDriver = {#call Fl_system_driver as fl_system_driver #} >>= toMaybeRef
 #endif
 #endif
+
+
+-- | Use this function to run a GUI in GHCi.
+replRun :: IO ()
+replRun = do
+  flush
+  w <- firstWindow
+  case w of
+    Just w' ->
+      catch (waitFor 0 >> replRun)
+            (\e -> if (e == UserInterrupt)
+                   then do
+                     allToplevelWindows [] (Just w') >>= mapM_ deleteWidget
+                     flush
+                   else throw e)
+    Nothing -> return ()
+  where
+    allToplevelWindows :: [Ref Window] -> Maybe (Ref Window) -> IO [Ref Window]
+    allToplevelWindows ws (Just w) = nextWindow w >>= allToplevelWindows (w:ws)
+    allToplevelWindows ws Nothing = return ws

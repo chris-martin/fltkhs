@@ -107,12 +107,8 @@ myPreConf args flags = do
       else return ()
    putStrLn "Running autoconf ..."
    case buildOS of
-     Windows -> do
-        rawSystemExit normal "sh" ["autoheader"]
-        rawSystemExit normal "sh" ["autoconf"]
-     _ -> do
-       rawSystemExit normal "autoheader" []
-       rawSystemExit normal "autoconf" []
+     Windows -> rawSystemExit normal "sh" ["autoconf"]
+     _ -> rawSystemExit normal "autoconf" []
    fltkPathAdded <-
      if (bundledBuild flags)
      then do
@@ -316,10 +312,23 @@ copyCBindingsAndBundledExecutables pkg_descr lbi uhs flags = do
     rawSystemExit (fromFlag $ copyVerbosity flags) "cp"
         [fltkcdir </> "libfltkc.a" , libPref]
     case buildOS of
-     OSX -> rawSystemExit (fromFlag $ copyVerbosity flags) "cp"
-              ["c-lib" </> "libfltkc-dyn.dylib", libPref]
-     _ -> rawSystemExit (fromFlag $ copyVerbosity flags) "cp"
-            ["c-lib" </> "libfltkc-dyn.so", libPref]
+     OSX -> do
+       updateEnv "DYLD_LIBRARY_PATH" (takeDirectory libPref)
+       rawSystemExit
+         (fromFlag $ copyVerbosity flags)
+          "cp"
+          [
+            "c-lib" </> "libfltkc-dyn.dylib"
+          , libPref
+          ]
+     _ -> do
+       updateEnv "LIBRARY_PATH" (takeDirectory libPref)
+       rawSystemExit
+         (fromFlag $ copyVerbosity flags) "cp"
+         [
+           "c-lib" </> "libfltkc-dyn.so"
+         , libPref
+         ]
     if (bundledBuild (configFlags lbi))
     then do
       executableDir <- (bundlePrefix (configFlags lbi)) "bin"
