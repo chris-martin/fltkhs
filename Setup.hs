@@ -48,7 +48,7 @@ main = defaultMainWithHooks autoconfUserHooks {
   regHook = registerHook
   }
 
-fltkSource = "fltk-1.4.x-r12283"
+fltkSource = "fltk-1.4.x-r12620"
 
 runMake :: [String] -> IO ()
 runMake args =
