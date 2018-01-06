@@ -82,9 +82,7 @@ import qualified Data.ByteString as B
     TreeReasonNone = FL_TREE_REASON_NONE,
     TreeReasonSelected = FL_TREE_REASON_SELECTED,
     TreeReasonDeselected = FL_TREE_REASON_DESELECTED,
-#if FLTK_ABI_VERSION >= 10302
     TreeReasonReselected = FL_TREE_REASON_RESELECTED,
-#endif /*FLTK_ABI_VERSION*/
     TreeReasonOpened = FL_TREE_REASON_OPENED,
     TreeReasonClosed = FL_TREE_REASON_CLOSED,
     TreeReasonDragged = FL_TREE_REASON_DRAGGED

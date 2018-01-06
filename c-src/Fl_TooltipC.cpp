@@ -56,7 +56,6 @@ EXPORT {
   FL_EXPORT_C(void,Fl_Tooltip_set_textcolor)(Fl_Color c){
     Fl_Tooltip::textcolor(c);
   }
-#if FLTK_ABI_VERSION >= 10301
   FL_EXPORT_C(int,Fl_Tooltip_margin_width)( ){
     return Fl_Tooltip::margin_width();
   }
@@ -75,22 +74,11 @@ EXPORT {
   FL_EXPORT_C(void,Fl_Tooltip_set_wrap_width)(int v){
     Fl_Tooltip::wrap_width(v);
   }
-#else
-  FL_EXPORT_C(int,Fl_Tooltip_margin_width)( ){
-    return Fl_Tooltip::margin_width();
-  }
-  FL_EXPORT_C(int,Fl_Tooltip_margin_height)( ){
-    return Fl_Tooltip::margin_height();
-  }
-  FL_EXPORT_C(int,Fl_Tooltip_wrap_width)( ){
-    return Fl_Tooltip::wrap_width();
-  }
-#endif
 #ifdef __APPLE__
   FL_EXPORT_C(fl_Window,Fl_Tooltip_current_window)(void ){
     return (fl_Window)Fl_Tooltip::current_window();
   }
-#endif  
+#endif
 #ifdef __cplusplus
 }
 #endif

@@ -12,10 +12,8 @@ module Graphics.UI.FLTK.LowLevel.Fl_Enumerations
      TreeConnector(..),
      TreeSelect(..),
      SearchDirection(..),
-#if FLTK_ABI_VERSION >= 10302
      TreeItemReselectMode(..),
      TreeItemDrawMode(..),
-#endif
      -- * Keyboard and mouse codes
      SpecialKey(..),
      allSpecialKeys,
@@ -36,7 +34,8 @@ module Graphics.UI.FLTK.LowLevel.Fl_Enumerations
      Modes(..),
      single,
      allModes,
-     -- * Alignment
+     allTreeItemDrawModes,
+     -- * Alignmenkt
      Alignments(..),
      AlignType(..),
      alignCenter,
@@ -246,7 +245,6 @@ enum SearchDirection {
   SearchDirectionDown = FL_Down,
   SearchDirectionUp = FL_Up
 };
-#if FLTK_ABI_VERSION >= 10302
 enum  TreeItemReselectMode{
   TreeSelectableOnce = FL_TREE_SELECTABLE_ONCE,
   TreeSelectableAlways = FL_TREE_SELECTABLE_ALWAYS
@@ -256,7 +254,6 @@ enum TreeItemDrawMode{
   TreeItemDrawLabelAndWidget = FL_TREE_ITEM_DRAW_LABEL_AND_WIDGET,
   TreeItemHeightFromWidget = FL_TREE_ITEM_HEIGHT_FROM_WIDGET
 };
-#endif
 enum SpecialKey {
   Button = FL_Button,
   Kb_Clear = FL_Clear,
@@ -412,10 +409,8 @@ enum AlignType {
 {#enum TreeConnector {} deriving (Show, Eq) #}
 {#enum TreeSelect {} deriving (Show, Eq) #}
 {#enum SearchDirection {} deriving (Show, Eq) #}
-#if FLTK_ABI_VERSION >= 10302
 {#enum TreeItemReselectMode {} deriving (Show, Eq) #}
-{#enum TreeItemDrawMode {} deriving (Show, Eq) #}
-#endif
+{#enum TreeItemDrawMode {} deriving (Show, Eq, Ord) #}
 {#enum SpecialKey {} deriving (Show, Eq) #}
 
 allShortcutSpecialKeys :: [CInt]
@@ -658,6 +653,14 @@ allEventStates = [
     Mouse_Button2State,
     Mouse_Button3State
   ]
+
+allTreeItemDrawModes :: [TreeItemDrawMode]
+allTreeItemDrawModes = [
+    TreeItemDrawDefault,
+    TreeItemDrawLabelAndWidget,
+    TreeItemHeightFromWidget
+  ]
+
 data Boxtype = NoBox
              | FlatBox
              | UpBox
@@ -995,6 +998,8 @@ instance Enum Labeltype where
              | x == defineEngravedLabel_ = EngravedLabel
              | x == defineEmbossedLabel_ = EmbossedLabel
     toEnum 8 = FreeLabelType
+    toEnum otherwise = error ("LabelType.toEnum: Cannot match " ++ show otherwise)
+
 
 symbolLabel :: Labeltype
 symbolLabel = NormalLabel

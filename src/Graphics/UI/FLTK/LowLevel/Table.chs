@@ -370,6 +370,13 @@ instance (impl ~ ( IO ())) => Op (HideSuper ()) Table orig impl where
 instance (impl ~ ( IO ())) => Op (Hide ()) Table orig impl where
   runOp _ _ widget = withRef widget $ \widgetPtr -> hide' widgetPtr
 
+{# fun Fl_Table_tab_cell_nav as tabCellNav' { id `Ptr ()' } -> `Bool' cToBool #}
+instance (impl ~ (  IO (Bool))) => Op (GetTabCellNav ()) Table orig impl where
+  runOp _ _ table = withRef table $ \tablePtr -> tabCellNav' tablePtr
+{# fun Fl_Table_set_tab_cell_nav as setTabCellNav' { id `Ptr ()',cFromBool `Bool' } -> `()' #}
+instance (impl ~ ( Bool ->  IO ())) => Op (SetTabCellNav ()) Table orig impl where
+  runOp _ _ table val = withRef table $ \tablePtr -> setTabCellNav' tablePtr val
+
 -- $Tablefunctions
 -- @
 --
@@ -441,13 +448,15 @@ instance (impl ~ ( IO ())) => Op (Hide ()) Table orig impl where
 --
 -- getSelection :: 'Ref' 'Table' -> 'IO' ('TableCoordinate', 'TableCoordinate')
 --
+-- getTabCellNav :: 'Ref' 'Table' -> 'IO' ('Bool')
+--
 -- getTableBox :: 'Ref' 'Table' -> 'IO' ('Boxtype')
 --
 -- getTopRow :: 'Ref' 'Table' -> 'IO' ('Row')
 --
 -- getVisibleCells :: 'Ref' 'Table' -> 'IO' ('TableCoordinate,TableCoordinate')
 --
--- handle :: 'Ref' 'Table' -> 'Event' -> 'IO' ( 'Either' 'UnknownEvent' () )
+-- handle :: 'Ref' 'Table' -> 'Event' -> 'IO'( 'Either' 'UnknownEvent' ())
 --
 -- hide :: 'Ref' 'Table' -> 'IO' ()
 --
@@ -510,6 +519,8 @@ instance (impl ~ ( IO ())) => Op (Hide ()) Table orig impl where
 -- setRowsSuper :: 'Ref' 'Table' -> 'Int' -> 'IO' ()
 --
 -- setSelection :: 'Ref' 'Table' -> 'Int' -> 'Int' -> 'Int' -> 'Int' -> 'IO' ()
+--
+-- setTabCellNav :: 'Ref' 'Table' -> 'Bool' -> 'IO' ()
 --
 -- setTableBox :: 'Ref' 'Table' -> 'Boxtype' -> 'IO' ()
 --

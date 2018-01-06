@@ -75,7 +75,6 @@ EXPORT {
     FL_TREE_SELECT_MULTI=2,
     FL_TREE_SELECT_SINGLE_DRAGGABLE=3
   }Fl_Tree_Select;
-#if FLTK_ABI_VERSION >= 10302
   typedef enum  Fl_Tree_Item_Reselect_Mode{
     FL_TREE_SELECTABLE_ONCE=0,
     FL_TREE_SELECTABLE_ALWAYS,
@@ -85,7 +84,6 @@ EXPORT {
     FL_TREE_ITEM_DRAW_LABEL_AND_WIDGET=1,
     FL_TREE_ITEM_HEIGHT_FROM_WIDGET=2
   }Fl_Tree_Item_Draw_Mode;
-#endif /*FLTK_ABI_VERSION*/
 #define FL_Button         0xfee8
 #define FL_Clear          0xff0b
 #define FL_BackSpace      0xff08

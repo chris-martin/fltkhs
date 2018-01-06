@@ -837,6 +837,10 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          setRowsSuper,
          SetColsSuper,
          setColsSuper,
+         SetTabCellNav,
+         setTabCellNav,
+         GetTabCellNav,
+         getTabCellNav,
          -- * TableRow
          TableRow,
          GetRowSelected,
@@ -1223,6 +1227,24 @@ module Graphics.UI.FLTK.LowLevel.Hierarchy
          setCallbackReason,
          GetCallbackReason,
          getCallbackReason,
+         RecalcTree,
+         recalcTree,
+         SetMarginbottom,
+         setMarginbottom,
+         GetMarginbottom,
+         getMarginbottom,
+         SetWidgetmarginleft,
+         setWidgetmarginleft,
+         GetWidgetmarginleft,
+         getWidgetmarginleft,
+         SetItemReselectMode,
+         setItemReselectMode,
+         GetItemReselectMode,
+         getItemReselectMode,
+         SetItemDrawMode,
+         setItemDrawMode,
+         GetItemDrawMode,
+         getItemDrawMode,
          -- * TextSelection
          TextSelection,
          Update,
@@ -3088,7 +3110,9 @@ type TableFuncs =
   (ShowWidgetSuper
   (Hide
   (HideSuper
-  ())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  (GetTabCellNav
+  (SetTabCellNav
+  ())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 type instance Functions Table = TableFuncs
 
@@ -3143,6 +3167,8 @@ MAKE_METHOD(FindCell,findCell)
 MAKE_METHOD(ClearSuper,clearSuper)
 MAKE_METHOD(SetRowsSuper,setRowsSuper)
 MAKE_METHOD(SetColsSuper,setColsSuper)
+MAKE_METHOD(SetTabCellNav, setTabCellNav)
+MAKE_METHOD(GetTabCellNav, getTabCellNav)
 
 data CTableRow parent
 type TableRow = CTableRow Table
@@ -3424,7 +3450,13 @@ type TreePrefsFuncs =
   (SetShowroot
   (GetSelectmode
   (SetSelectmode
-  ())))))))))))))))))))))))))))))))))))))))))))))))))
+  (GetMarginbottom
+  (SetMarginbottom
+  (GetWidgetmarginleft
+  (SetWidgetmarginleft
+  (GetItemReselectMode
+  (SetItemReselectMode
+  ())))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 type instance Functions TreePrefs = TreePrefsFuncs
 
@@ -3723,7 +3755,14 @@ type TreeFuncs =
   (ShowWidgetSuper
   (Hide
   (HideSuper
-  ()))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
+  (RecalcTree
+  (GetMarginbottom
+  (SetMarginbottom
+  (GetWidgetmarginleft
+  (SetWidgetmarginleft
+  (GetItemReselectMode
+  (SetItemReselectMode
+  ())))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))
 
 
 type instance Functions Tree = TreeFuncs
@@ -3768,6 +3807,15 @@ MAKE_METHOD(SetCallbackItem,setCallbackItem)
 MAKE_METHOD(GetCallbackItem,getCallbackItem)
 MAKE_METHOD(SetCallbackReason,setCallbackReason)
 MAKE_METHOD(GetCallbackReason,getCallbackReason)
+MAKE_METHOD(RecalcTree, recalcTree)
+MAKE_METHOD(SetMarginbottom,setMarginbottom)
+MAKE_METHOD(GetMarginbottom,getMarginbottom)
+MAKE_METHOD(SetWidgetmarginleft,setWidgetmarginleft)
+MAKE_METHOD(GetWidgetmarginleft,getWidgetmarginleft)
+MAKE_METHOD(SetItemReselectMode,setItemReselectMode)
+MAKE_METHOD(GetItemReselectMode,getItemReselectMode)
+MAKE_METHOD(SetItemDrawMode,setItemDrawMode)
+MAKE_METHOD(GetItemDrawMode,getItemDrawMode)
 
 data CTextSelection parent
 type TextSelection = CTextSelection Base
